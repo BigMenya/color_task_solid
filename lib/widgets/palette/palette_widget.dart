@@ -13,16 +13,35 @@ class PaletteWidget extends StatefulWidget {
 
 class _PaletteWidgetState extends State<PaletteWidget> {
   Color _currentColor = Colors.red;
-  Offset _dragPosition = const Offset(100, 0);
+  Offset _dragPosition = const Offset(100, 100);
+  final double markerSize = 20.0;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
         setState(() {
-          _dragPosition = details.localPosition;
-          _currentColor = _getColorAtPosition(_dragPosition);
-          widget.onChanged(_currentColor);
+          final renderObject = context.findRenderObject();
+          if (renderObject != null) {
+            final box = renderObject as RenderBox;
+            _dragPosition = box.globalToLocal(details.globalPosition);
+            final Offset centeredPosition =
+                _dragPosition - const Offset(100, 100);
+            final double distance = centeredPosition.distance;
+            if (distance <= 100 - markerSize / 2) {
+              _currentColor = _getColorAtPosition(_dragPosition);
+            } else {
+              final double angle =
+                  atan2(centeredPosition.dy, centeredPosition.dx);
+              final double adjustedX =
+                  cos(angle) * (100 - markerSize / 2) + 100;
+              final double adjustedY =
+                  sin(angle) * (100 - markerSize / 2) + 100;
+              _dragPosition = Offset(adjustedX, adjustedY);
+              _currentColor = _getColorAtPosition(_dragPosition);
+            }
+            widget.onChanged(_currentColor);
+          }
         });
       },
       child: SizedBox(
@@ -38,8 +57,8 @@ class _PaletteWidgetState extends State<PaletteWidget> {
               left: _dragPosition.dx - 10,
               top: _dragPosition.dy - 10,
               child: Container(
-                width: 20,
-                height: 20,
+                width: markerSize,
+                height: markerSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
