@@ -1,30 +1,30 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:random_color_solid/main.dart';
+import 'package:random_color_solid/widgets/app_widget.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('ColoredBox changes color on tap', (WidgetTester tester) async {
+    const initialColor = Colors.white;
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const AppWidget());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Getting box to test
+    final coloredBox =
+        tester.firstWidget(find.byType(ColoredBox)) as ColoredBox;
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Verify that our color starts with white.
+    expect(coloredBox.color == initialColor, true);
+
+    // Tap on screen
+    await tester.tapAt(const Offset(50, 50));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Getting the updated box
+    final updatedBox =
+        tester.firstWidget(find.byType(ColoredBox)) as ColoredBox;
+
+    // Verify that our color has changed.
+    expect(updatedBox.color != initialColor, true);
   });
 }
