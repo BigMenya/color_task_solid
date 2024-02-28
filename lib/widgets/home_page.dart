@@ -12,7 +12,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Color boxColor = Colors.white;
+  Color titleColor = Colors.black;
   bool paletteVisible = false;
+  bool needOppositeColor = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,9 @@ class _HomePageState extends State<HomePage> {
         onTap: () {
           if (!paletteVisible) {
             setState(() {
-              boxColor = generateBackgroundColor();
+              final newColor = generateBackgroundColor();
+              boxColor = newColor;
+              updateTitleColor(newColor);
             });
           }
         },
@@ -43,7 +47,8 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   'Hello there',
-                  style: theme.textTheme.headlineMedium?.copyWith(),
+                  style: theme.textTheme.headlineMedium
+                      ?.copyWith(color: titleColor),
                 ),
                 if (paletteVisible)
                   PaletteWidget(
@@ -59,6 +64,18 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  /// Check if we need to change title color if background color is similar
+  /// Normally I would apply theme to reflect background changes but for this
+  /// task I think it's overkill
+  Color updateTitleColor(Color backgroundColor) {
+    const minDiff = 20;
+    final backgroundCloseToBlack = backgroundColor.blue < minDiff &&
+        backgroundColor.red < minDiff &&
+        backgroundColor.green < minDiff;
+
+    return titleColor = backgroundCloseToBlack ? Colors.white : Colors.black;
   }
 
   Color generateBackgroundColor() {
